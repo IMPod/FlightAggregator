@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.Extensions.Options;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -35,6 +36,26 @@ builder.Services.AddSwaggerGen(options =>
 
 var app = builder.Build();
 
+app.UseExceptionHandler(exceptionHandlerApp =>
+{
+    exceptionHandlerApp.Run(async context =>
+    {
+        context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+        context.Response.ContentType = "application/json";
+
+        var exceptionHandlerFeature = context.Features.Get<IExceptionHandlerFeature>();
+        if (exceptionHandlerFeature != null)
+        {
+            var exception = exceptionHandlerFeature.Error;
+            await context.Response.WriteAsJsonAsync(new
+            {
+                error = exception.Message,
+                stackTrace = exception.StackTrace
+            });
+        }
+    });
+});
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -67,14 +88,26 @@ app.Use(async (context, next) =>
 
 app.UseHttpsRedirection();
 
-app.MapGet("/api/flights", async () =>
+app.MapGet("/api/flights", async (HttpContext httpContext) =>
 {
-    var flights = new List<object>
+    var flights = new List<FlightDTO>
     {
-        new { Id = 1, Airline = "Airline 3", Price = 100, Stops = 0, DepartureDate = "2025-04-10", AvailableSeats = 50 },
-        new { Id = 2, Airline = "Airline 4", Price = 150, Stops = 1, DepartureDate = "2025-04-12", AvailableSeats = 30 }
+        new() { Id = 1, Airline = "Airline 3", Price = 100, Stops = 0, DepartureDate = new DateTime(2025, 4, 10), AvailableSeats = 50 },
+        new() { Id = 2, Airline = "Airline 4", Price = 150, Stops = 1, DepartureDate = new DateTime(2025, 4, 14), AvailableSeats = 30 },
+        new() { Id = 3, Airline = "Airline 3", Price = 200, Stops = 2, DepartureDate = new DateTime(2025, 4, 16), AvailableSeats = 20 },
     };
-    return Results.Ok(flights);
+
+    var queryParams = httpContext.Request.Query;
+
+    var filteredFlights = flights.Where(flight =>
+        (string.IsNullOrEmpty(queryParams["airline"]) || flight.Airline.Equals(queryParams["airline"], StringComparison.OrdinalIgnoreCase)) &&
+        (!double.TryParse(queryParams["minPrice"], out var minPrice) || flight.Price >= minPrice) &&
+        (!double.TryParse(queryParams["maxPrice"], out var maxPrice) || flight.Price <= maxPrice) &&
+        (!DateTime.TryParse(queryParams["minDepartureDate"], out var minDepartureDate) || flight.DepartureDate >= minDepartureDate) &&
+        (!DateTime.TryParse(queryParams["maxDepartureDate"], out var maxDepartureDate) || flight.DepartureDate <= maxDepartureDate)
+    ).ToList();
+
+    return Results.Ok(filteredFlights);
 })
 .WithName("GetFlights");
 
@@ -102,4 +135,14 @@ public class BookingRequest
 public class ApiSettings
 {
     public string ApiKey { get; set; }
+}
+
+public class FlightDTO
+{
+    public int Id { get; set; }
+    public string Airline { get; set; }
+    public double Price { get; set; }
+    public int Stops { get; set; }
+    public DateTime DepartureDate { get; set; }
+    public int AvailableSeats { get; set; }
 }

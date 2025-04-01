@@ -1,4 +1,4 @@
-﻿namespace FlightAggregatorApi.API.Models
+﻿namespace FlightAggregatorApi.BLL.Models
 {
     public class FlightDTO
     {

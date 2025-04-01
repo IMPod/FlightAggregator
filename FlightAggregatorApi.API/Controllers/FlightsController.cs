@@ -1,53 +1,56 @@
-﻿using FlightAggregatorApi.API.Models;
-using FlightAggregatorApi.BLL.Services;
+﻿using FlightAggregatorApi.BLL.Models;
+using FlightAggregatorApi.BLL.Queries;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace FlightAggregatorApi.API.Controllers;
 
 [Route("api/aggregator")]
 [ApiController]
-public class FlightsController(IFlightSourceService flightSourceService) : ControllerBase
+public class FlightsController(IMediator mediator) : ControllerBase
 {
-    private readonly TimeSpan _timeout = TimeSpan.FromSeconds(10);
-
+    /// <summary>
+    /// Get aggregated flights with optional filters.
+    /// </summary>
+    /// <param name="airline">The airline name to filter the flights.</param>
+    /// <param name="minPrice">The minimum price for filtering flights.</param>
+    /// <param name="maxPrice">The maximum price for filtering flights.</param>
+    /// <param name="minDepartureDate">The minimum departure date for filtering flights.</param>
+    /// <param name="maxDepartureDate">The maximum departure date for filtering flights.</param>
+    /// <returns>
+    /// <para><b>200 OK</b> - A list of aggregated flights that match the filters.</para>
+    /// <para><b>400 Bad Request</b> - Invalid input data (e.g., date format or non-numeric price).</para>
+    /// <para><b>500 Internal Server Error</b> - A server error occurred while processing the request.</para>
+    /// </returns>
     [HttpGet("flights")]
-    public async Task<IActionResult> GetAggregatedFlights()
+    [SwaggerOperation(
+        Summary = "Get aggregated flights",
+        Description = "Retrieves a list of aggregated flights based on optional filters provided in the query parameters."
+    )]
+    [SwaggerResponse(200, "A list of aggregated flights that match the filters.", typeof(IEnumerable<FlightDTO>))]
+    [SwaggerResponse(400, "Invalid input data.", typeof(string))]
+    [SwaggerResponse(500, "A server error occurred.", typeof(string))]
+    public async Task<IActionResult> GetAggregatedFlights(
+        [FromQuery] string airline = null,
+        [FromQuery] double? minPrice = null,
+        [FromQuery] double? maxPrice = null,
+        [FromQuery] DateTime? minDepartureDate = null,
+        [FromQuery] DateTime? maxDepartureDate = null)
     {
-        var flightsATask = GetFlightsWithTimeoutAsync("FlightSource1");
-        var flightsBTask = GetFlightsWithTimeoutAsync("FlightSource2");
-
-        await Task.WhenAll(flightsATask, flightsBTask);
-
-        var results = new
+        var query = new GetAggregatedFlightsQuery
         {
-            FlightsFromA = flightsATask.Result.Values,
-            FlightsFromB = flightsBTask.Result.Values,
-            Errors = flightsATask.Result.Errors.Concat(flightsBTask.Result.Errors).ToList()
+            Filters = new()
+            {
+                Airline = airline,
+                MinPrice = minPrice,
+                MaxPrice = maxPrice,
+                MinDepartureDate = minDepartureDate,
+                MaxDepartureDate = maxDepartureDate
+            }
         };
 
-        return Ok(results);
-    }
-
-    private async Task<(List<FlightDTO> Values, List<string> Errors)> GetFlightsWithTimeoutAsync(string source)
-    {
-        using var cts = new CancellationTokenSource(_timeout);
-        try
-        {
-            var flightsJson = await flightSourceService.GetFlightsAsync(source, cts.Token);
-
-            if (flightsJson == null) 
-                return ([], [$"{source} returned null data."]);
-            var flights = JsonConvert.DeserializeObject<List<FlightDTO>>(flightsJson) ?? [];
-            return (flights, []);
-        }
-        catch (TaskCanceledException)
-        {
-            return ([], [$"{source} timed out."]);
-        }
-        catch (Exception ex)
-        {
-            return ([], [$"Error fetching from {source}: {ex.Message}"]);
-        }
+        var response = await mediator.Send(query);
+        return Ok(response);
     }
 }
