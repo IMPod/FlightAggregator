@@ -1,6 +1,4 @@
-using FlightAggregatorApi.API.Infrastructure;
 using FlightAggregatorApi.BLL.Services;
-using Microsoft.Extensions.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 

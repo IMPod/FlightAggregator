@@ -2,5 +2,5 @@
 
 public interface IFlightSourceService
 {
-    Task<string?> GetFlightsAsync(string sourceName);
+    Task<string?> GetFlightsAsync(string sourceNamee, CancellationToken cancellationToken);
 }

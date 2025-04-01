@@ -64,6 +64,17 @@ if (app.Environment.IsDevelopment())
 
 app.Use(async (context, next) =>
 {
+    var random = new Random();
+    var delaySeconds = random.Next(1, 11);
+
+    Console.WriteLine($"Adding random delay of {delaySeconds} seconds for request to {context.Request.Path}");
+
+    await Task.Delay(TimeSpan.FromSeconds(delaySeconds));
+    await next();
+});
+
+app.Use(async (context, next) =>
+{
     var apiSettings = context.RequestServices.GetRequiredService<ApiSettings>();
 
     if (!context.Request.Headers.TryGetValue("API-Key", out var apiKey) || apiKey != apiSettings.ApiKey)
