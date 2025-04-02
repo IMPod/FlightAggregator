@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FlightSource1", "..\FlightS
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FlightSource2", "..\FlightSource2\FlightSource2.csproj", "{E8450DDC-5013-4547-9674-3FA9E4DBEAA7}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FlightAggregatorTests", "..\FlightAggregatorTests\FlightAggregatorTests.csproj", "{3F7A39B0-8C2C-426A-AEC6-8DB8BF501C26}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -35,6 +37,10 @@ Global
 		{E8450DDC-5013-4547-9674-3FA9E4DBEAA7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E8450DDC-5013-4547-9674-3FA9E4DBEAA7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E8450DDC-5013-4547-9674-3FA9E4DBEAA7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3F7A39B0-8C2C-426A-AEC6-8DB8BF501C26}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3F7A39B0-8C2C-426A-AEC6-8DB8BF501C26}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3F7A39B0-8C2C-426A-AEC6-8DB8BF501C26}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3F7A39B0-8C2C-426A-AEC6-8DB8BF501C26}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

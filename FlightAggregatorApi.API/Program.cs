@@ -40,7 +40,11 @@ var redis = ConnectionMultiplexer.Connect("localhost");
 builder.Services.AddSingleton<IConnectionMultiplexer>(redis);
 builder.Services.AddSingleton<IRedisCacheService, RedisCacheService>();
 
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.PropertyNamingPolicy = null; 
+    });
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
@@ -62,10 +66,10 @@ if (app.Environment.IsDevelopment())
     });
 }
 
-//app.UseMiddleware<ApiKeyMiddleware>();
-
 app.UseHttpsRedirection();
 app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
+public partial class Program { }

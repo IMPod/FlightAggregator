@@ -19,7 +19,7 @@ public class FlightsController(IMediator mediator) : ControllerBase
     /// <param name="maxPrice">The maximum price for filtering flights.</param>
     /// <param name="minDepartureDate">The minimum departure date for filtering flights.</param>
     /// <param name="maxDepartureDate">The maximum departure date for filtering flights.</param>
-    /// <param name="sortBy">sort by "price | departure | stops"</param>
+    /// <param name="sortBy">sort by "price | departure | seats"</param>
     /// <param name="descending"></param>
     /// <returns>
     /// <para><b>200 OK</b> - A list of aggregated flights that match the filters.</para>

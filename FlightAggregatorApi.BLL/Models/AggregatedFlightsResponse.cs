@@ -2,6 +2,6 @@
 
 public class AggregatedFlightsResponse
 {
-    public List<FlightDTO> Flights { get; set; }
-    public List<string> Errors { get; set; } = [];
+    public IEnumerable<FlightDTO> Flights { get; set; }
+    public IEnumerable<string> Errors { get; set; } = [];
 }

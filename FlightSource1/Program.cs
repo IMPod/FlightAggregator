@@ -68,7 +68,7 @@ app.Use(async (context, next) =>
     var random = new Random();
     var delaySeconds = random.Next(1, 11);
 
-    Console.WriteLine($"Adding random delay of {delaySeconds} seconds for request to {context.Request.Path}");
+    Console.WriteLine($"{DateTime.Now} Adding random delay of {delaySeconds} seconds for request to {context.Request.Path}");
 
     await Task.Delay(TimeSpan.FromSeconds(delaySeconds));
     await next();
@@ -132,7 +132,7 @@ app.MapPost("/api/flights/book", async (HttpContext context) =>
         }
 
         flight.AvailableSeats -= bookingRequest.Seats;
-        return Results.Ok(new { Message = $"Booking confirmed for flight {bookingRequest.FlightId}.", RemainingSeats = flight.AvailableSeats });
+        return Results.Ok(new { Message = $"Booking confirmed for flight {bookingRequest.FlightId}.", RemainingSeats = flight.AvailableSeats, Success = true });
     })
     .WithName("BookFlight");
 

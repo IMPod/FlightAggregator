@@ -43,14 +43,14 @@ public class GetAggregatedFlightsQueryHandler(
         {
             "price" => request.Descending ? result.Flights.OrderByDescending(f => f.Price).ToList() : result.Flights.OrderBy(f => f.Price).ToList(),
             "departure" => request.Descending ? result.Flights.OrderByDescending(f => f.DepartureDate).ToList() : result.Flights.OrderBy(f => f.DepartureDate).ToList(),
-            "stops" => request.Descending ? result.Flights.OrderByDescending(f => f.Stops).ToList() : result.Flights.OrderBy(f => f.Stops).ToList(),
+            "stops" => request.Descending ? result.Flights.OrderByDescending(f => f.Seats).ToList() : result.Flights.OrderBy(f => f.Seats).ToList(),
             _ => result.Flights
         };
 
         return result;
     }
 
-    private async Task<(List<FlightDTO> Values, List<string> Errors)> GetFlightsWithTimeoutAsync(string source, FilterParams filters, CancellationToken cancellationToken)
+    private async Task<(IEnumerable<FlightDTO> Values, IEnumerable<string> Errors)> GetFlightsWithTimeoutAsync(string source, FilterParams filters, CancellationToken cancellationToken)
     {
         using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(CancelledAfterSeconds));
         var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cts.Token, cancellationToken);

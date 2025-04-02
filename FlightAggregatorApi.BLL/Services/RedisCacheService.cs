@@ -15,14 +15,14 @@ namespace FlightAggregatorApi.BLL.Services
             _database = connectionMultiplexer.GetDatabase();
         }
 
-        public async Task<List<FlightDTO>> GetCachedFlightsAsync(string key)
+        public async Task<IEnumerable<FlightDTO>> GetCachedFlightsAsync(string key)
         {
             var cachedData = await _database.StringGetAsync(key);
             return string.IsNullOrEmpty(cachedData) ?
-                null : JsonConvert.DeserializeObject<List<FlightDTO>>(cachedData);
+                null : JsonConvert.DeserializeObject<IEnumerable<FlightDTO>>(cachedData);
         }
 
-        public async Task SetCacheAsync(string key, List<FlightDTO> flights)
+        public async Task SetCacheAsync(string key, IEnumerable<FlightDTO> flights)
         {
             var value = JsonConvert.SerializeObject(flights);
             await _database.StringSetAsync(key, value, TimeSpan.FromSeconds(_cacheExpirationSeconds));
