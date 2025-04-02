@@ -8,6 +8,7 @@ namespace FlightAggregatorApi.BLL.Services
     public class RedisCacheService : IRedisCacheService
     {
         private readonly IDatabase _database;
+        private int _cacheExpirationSeconds = 15;
 
         public RedisCacheService(IConnectionMultiplexer connectionMultiplexer)
         {
@@ -24,7 +25,7 @@ namespace FlightAggregatorApi.BLL.Services
         public async Task SetCacheAsync(string key, List<FlightDTO> flights)
         {
             var value = JsonConvert.SerializeObject(flights);
-            await _database.StringSetAsync(key, value);
+            await _database.StringSetAsync(key, value, TimeSpan.FromSeconds(_cacheExpirationSeconds));
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using FlightAggregatorApi.BLL.Models;
+﻿using FlightAggregatorApi.BLL.Commands;
+using FlightAggregatorApi.BLL.Models;
 using FlightAggregatorApi.BLL.Queries;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -51,6 +52,32 @@ public class FlightsController(IMediator mediator) : ControllerBase
         };
 
         var response = await mediator.Send(query);
+        return Ok(response);
+    }
+
+    /// <summary>
+    /// Books a flight by sending a request to the corresponding flight source.
+    /// </summary>
+    /// <param name="request">The flight booking request details.</param>
+    /// <returns>Booking confirmation or an error message.</returns>
+    [HttpPost("book-flight")]
+    [SwaggerOperation(
+        Summary = "Book a flight",
+        Description = "Sends a booking request to the corresponding flight source and returns the booking confirmation."
+    )]
+    [SwaggerResponse(200, "Booking successful", typeof(BookingResponse))]
+    [SwaggerResponse(400, "Invalid booking request", typeof(string))]
+    [SwaggerResponse(500, "A server error occurred", typeof(string))]
+    public async Task<IActionResult> BookFlight([FromBody] FlightBookingRequest request)
+    {
+        if (request is not { FlightId: > 0 })
+        {
+            return BadRequest("Invalid booking request.");
+        }
+
+        var command = new BookFlightCommand(request);
+        var response = await mediator.Send(command);
+
         return Ok(response);
     }
 }

@@ -89,15 +89,15 @@ app.Use(async (context, next) =>
 
 app.UseHttpsRedirection();
 
+var flights = new List<FlightDTO>
+{
+    new() { Id = 1, Airline = "Airline 1", Price = 100, Stops = 0, DepartureDate = new DateTime(2025, 4, 10), AvailableSeats = 50 },
+    new() { Id = 2, Airline = "Airline 2", Price = 150, Stops = 1, DepartureDate = new DateTime(2025, 4, 12), AvailableSeats = 30 },
+    new() { Id = 3, Airline = "Airline 1", Price = 200, Stops = 2, DepartureDate = new DateTime(2025, 4, 15), AvailableSeats = 20 },
+};
+
 app.MapGet("/api/flights", async (HttpContext httpContext) =>
 {
-    var flights = new List<FlightDTO>
-    {
-        new() { Id = 1, Airline = "Airline 1", Price = 100, Stops = 0, DepartureDate = new DateTime(2025, 4, 10), AvailableSeats = 50 },
-        new() { Id = 2, Airline = "Airline 2", Price = 150, Stops = 1, DepartureDate = new DateTime(2025, 4, 12), AvailableSeats = 30 },
-        new() { Id = 3, Airline = "Airline 1", Price = 200, Stops = 2, DepartureDate = new DateTime(2025, 4, 15), AvailableSeats = 20 },
-    };
-
     var queryParams = httpContext.Request.Query;
 
     var filteredFlights = flights.Where(flight =>
@@ -113,17 +113,28 @@ app.MapGet("/api/flights", async (HttpContext httpContext) =>
 .WithName("GetFlights");
 
 app.MapPost("/api/flights/book", async (HttpContext context) =>
-{
-    var bookingRequest = await context.Request.ReadFromJsonAsync<BookingRequest>();
-
-    if (bookingRequest == null || bookingRequest.FlightId <= 0)
     {
-        return Results.BadRequest("Invalid booking request.");
-    }
+        var bookingRequest = await context.Request.ReadFromJsonAsync<BookingRequest>();
+        if (bookingRequest is not { FlightId: > 0, Seats: > 0 })
+        {
+            return Results.BadRequest("Invalid booking request.");
+        }
 
-    return Results.Ok(new { Message = $"Booking confirmed for flight {bookingRequest.FlightId}." });
-})
-.WithName("BookFlight");
+        var flight = flights.FirstOrDefault(f => f.Id == bookingRequest.FlightId);
+        if (flight == null)
+        {
+            return Results.NotFound("Flight not found.");
+        }
+
+        if (flight.AvailableSeats < bookingRequest.Seats)
+        {
+            return Results.BadRequest("Not enough available seats.");
+        }
+
+        flight.AvailableSeats -= bookingRequest.Seats;
+        return Results.Ok(new { Message = $"Booking confirmed for flight {bookingRequest.FlightId}.", RemainingSeats = flight.AvailableSeats });
+    })
+    .WithName("BookFlight");
 
 app.Run();
 
@@ -146,4 +157,5 @@ public class FlightDTO
     public int Stops { get; set; }
     public DateTime DepartureDate { get; set; }
     public int AvailableSeats { get; set; }
+    public string Source { get; } = "FlightSource1";
 }

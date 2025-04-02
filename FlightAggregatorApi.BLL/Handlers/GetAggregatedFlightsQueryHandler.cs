@@ -11,6 +11,8 @@ public class GetAggregatedFlightsQueryHandler(
     IRedisCacheService redisCacheService)
     : IRequestHandler<GetAggregatedFlightsQuery, AggregatedFlightsResponse>
 {
+    private const int CancelledAfterSeconds = 15;
+
     public async Task<AggregatedFlightsResponse> Handle(GetAggregatedFlightsQuery request, CancellationToken cancellationToken)
     {
         var cacheKey =request.Filters.GenerateCacheKey();
@@ -18,7 +20,7 @@ public class GetAggregatedFlightsQueryHandler(
         var cachedFlights = await redisCacheService.GetCachedFlightsAsync(cacheKey);
         if (cachedFlights != null)
         {
-            return new AggregatedFlightsResponse { Flights = cachedFlights, Errors = new List<string>() };
+            return new AggregatedFlightsResponse { Flights = cachedFlights, Errors = [] };
         }
 
         var flightsATask = GetFlightsWithTimeoutAsync("FlightSource1", request.Filters, cancellationToken);
@@ -42,7 +44,7 @@ public class GetAggregatedFlightsQueryHandler(
 
     private async Task<(List<FlightDTO> Values, List<string> Errors)> GetFlightsWithTimeoutAsync(string source, FilterParams filters, CancellationToken cancellationToken)
     {
-        using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(10));
+        using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(CancelledAfterSeconds));
         var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cts.Token, cancellationToken);
 
         try
@@ -50,19 +52,19 @@ public class GetAggregatedFlightsQueryHandler(
             var flightsJson = await flightSourceService.GetFlightsAsync(source, filters, linkedCts.Token);
             if (string.IsNullOrEmpty(flightsJson))
             {
-                return (new List<FlightDTO>(), new List<string> { $"{source} returned null data." });
+                return ([], [$"{source} returned null data."]);
             }
 
-            var flights = JsonConvert.DeserializeObject<List<FlightDTO>>(flightsJson) ?? new List<FlightDTO>();
-            return (flights, new List<string>());
+            var flights = JsonConvert.DeserializeObject<List<FlightDTO>>(flightsJson) ?? [];
+            return (flights, []);
         }
         catch (TaskCanceledException)
         {
-            return (new List<FlightDTO>(), new List<string> { $"{source} timed out." });
+            return ([], [$"{source} timed out."]);
         }
         catch (Exception ex)
         {
-            return (new List<FlightDTO>(), new List<string> { $"Error fetching from {source}: {ex.Message}" });
+            return ([], [$"Error fetching from {source}: {ex.Message}"]);
         }
     }
 }

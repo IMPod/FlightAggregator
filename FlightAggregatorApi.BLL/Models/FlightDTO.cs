@@ -8,5 +8,6 @@
         public int Stops { get; set; }
         public DateTime DepartureDate { get; set; }
         public int AvailableSeats { get; set; }
+        public string Source { get; set; }
     }
 }

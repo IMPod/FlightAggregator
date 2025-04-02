@@ -1,5 +1,6 @@
 ﻿using FlightAggregatorApi.BLL.Models;
 using Microsoft.Extensions.Options;
+using System.Net.Http.Json;
 
 namespace FlightAggregatorApi.BLL.Services;
 
@@ -21,6 +22,37 @@ public class FlightSourceService(HttpClient httpClient, IOptions<FlightSourceSet
         if (!response.IsSuccessStatusCode) return null;
 
         return await response.Content.ReadAsStringAsync(cancellationToken);
+    }
+
+    public async Task<BookingResponse> BookFlightAsync(string sourceName, FlightBookingRequest bookingRequest, CancellationToken cancellationToken)
+    {
+        if (!_settings.Sources.TryGetValue(sourceName, out var sourceConfig))
+        {
+            return new BookingResponse { Success = false, Message = "Unknown flight source" };
+        }
+
+        var bookingUrl = $"{sourceConfig.BaseUrl}/api/flights/book";
+
+        var requestMessage = new HttpRequestMessage(HttpMethod.Post, bookingUrl)
+        {
+            Content = JsonContent.Create(bookingRequest)
+        };
+        requestMessage.Headers.Add("API-Key", sourceConfig.ApiKey);
+
+        var response = await httpClient.SendAsync(requestMessage, cancellationToken);
+
+        if (!response.IsSuccessStatusCode)
+        {
+            return new BookingResponse
+            {
+                Success = false,
+                Message = $"Failed to book flight: {response.StatusCode}"
+            };
+        }
+
+        var result = await response.Content.ReadFromJsonAsync<BookingResponse>(cancellationToken: cancellationToken);
+
+        return result ?? new BookingResponse { Success = false, Message = "Unknown error" };
     }
 
     private string BuildUrlWithFilters(string baseUrl, FilterParams filterParams)
