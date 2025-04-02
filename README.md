@@ -80,3 +80,10 @@ Content-Type: application/json
     "Success": true,
     "Message": "Booking confirmed for flight 1."
 }
+
+
+### Key Additions:
+- A section explaining the presence of `FlightSources.sln` and its importance for running examples of external data sources.
+- A note on the connection keys that are stored in `appsettings.json`.
+
+Feel free to adjust any section according to your needs! If there’s anything more you’d like to add or modify, just let me know!
