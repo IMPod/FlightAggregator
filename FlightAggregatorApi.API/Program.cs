@@ -1,7 +1,10 @@
 using FlightAggregatorApi.BLL;
 using FlightAggregatorApi.BLL.Services;
+using FlightAggregatorApi.BLL.Middlewares;
 using Microsoft.OpenApi.Models;
+using Serilog;
 using StackExchange.Redis;
+using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(typeof(MediatRCommandAssemblyMarker).Assembly));
@@ -22,6 +25,17 @@ builder.Services.Configure<FlightSourceSettings>(options =>
 
 builder.Services.AddHttpClient<IFlightSourceService, FlightSourceService>();
 
+Log.Logger = new LoggerConfiguration()
+    .ReadFrom.Configuration(builder.Configuration) 
+    .Enrich.FromLogContext()
+    .Enrich.WithThreadId()
+    .Enrich.WithEnvironmentName()
+    .WriteTo.Console()
+    .WriteTo.File("Logs/log-.txt", rollingInterval: RollingInterval.Day)
+    .CreateLogger();
+
+builder.Host.UseSerilog();
+
 var redis = ConnectionMultiplexer.Connect("localhost");
 builder.Services.AddSingleton<IConnectionMultiplexer>(redis);
 builder.Services.AddSingleton<IRedisCacheService, RedisCacheService>();
@@ -31,9 +45,13 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "FlightAggregatorApi", Version = "v1" });
+    var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+    c.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
 });
 
 var app = builder.Build();
+
+app.UseMiddleware<RequestLoggingMiddleware>();
 
 if (app.Environment.IsDevelopment())
 {

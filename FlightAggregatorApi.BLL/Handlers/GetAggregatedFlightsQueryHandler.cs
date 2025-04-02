@@ -39,6 +39,14 @@ public class GetAggregatedFlightsQueryHandler(
             await redisCacheService.SetCacheAsync(cacheKey, result.Flights);
         }
 
+        result.Flights = request.SortBy.ToLower() switch
+        {
+            "price" => request.Descending ? result.Flights.OrderByDescending(f => f.Price).ToList() : result.Flights.OrderBy(f => f.Price).ToList(),
+            "departure" => request.Descending ? result.Flights.OrderByDescending(f => f.DepartureDate).ToList() : result.Flights.OrderBy(f => f.DepartureDate).ToList(),
+            "stops" => request.Descending ? result.Flights.OrderByDescending(f => f.Stops).ToList() : result.Flights.OrderBy(f => f.Stops).ToList(),
+            _ => result.Flights
+        };
+
         return result;
     }
 
@@ -56,6 +64,7 @@ public class GetAggregatedFlightsQueryHandler(
             }
 
             var flights = JsonConvert.DeserializeObject<List<FlightDTO>>(flightsJson) ?? [];
+
             return (flights, []);
         }
         catch (TaskCanceledException)

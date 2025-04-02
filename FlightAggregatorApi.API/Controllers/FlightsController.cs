@@ -19,6 +19,8 @@ public class FlightsController(IMediator mediator) : ControllerBase
     /// <param name="maxPrice">The maximum price for filtering flights.</param>
     /// <param name="minDepartureDate">The minimum departure date for filtering flights.</param>
     /// <param name="maxDepartureDate">The maximum departure date for filtering flights.</param>
+    /// <param name="sortBy">sort by "price | departure | stops"</param>
+    /// <param name="descending"></param>
     /// <returns>
     /// <para><b>200 OK</b> - A list of aggregated flights that match the filters.</para>
     /// <para><b>400 Bad Request</b> - Invalid input data (e.g., date format or non-numeric price).</para>
@@ -33,11 +35,13 @@ public class FlightsController(IMediator mediator) : ControllerBase
     [SwaggerResponse(400, "Invalid input data.", typeof(string))]
     [SwaggerResponse(500, "A server error occurred.", typeof(string))]
     public async Task<IActionResult> GetAggregatedFlights(
-        [FromQuery] string airline = null,
+        [FromQuery] string airline = "",
         [FromQuery] double? minPrice = null,
         [FromQuery] double? maxPrice = null,
         [FromQuery] DateTime? minDepartureDate = null,
-        [FromQuery] DateTime? maxDepartureDate = null)
+        [FromQuery] DateTime? maxDepartureDate = null,
+        [FromQuery] string sortBy = "price",
+        [FromQuery] bool descending = false)
     {
         var query = new GetAggregatedFlightsQuery
         {
@@ -48,7 +52,9 @@ public class FlightsController(IMediator mediator) : ControllerBase
                 MaxPrice = maxPrice,
                 MinDepartureDate = minDepartureDate,
                 MaxDepartureDate = maxDepartureDate
-            }
+            },
+            SortBy = sortBy,
+            Descending = descending
         };
 
         var response = await mediator.Send(query);
