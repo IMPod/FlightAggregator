@@ -2,12 +2,14 @@
 using FlightAggregatorApi.BLL.Models;
 using FlightAggregatorApi.BLL.Queries;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 
 namespace FlightAggregatorApi.API.Controllers;
 
 [Route("api/aggregator")]
+[Authorize]
 [ApiController]
 public class FlightsController(IMediator mediator) : ControllerBase
 {
@@ -34,6 +36,7 @@ public class FlightsController(IMediator mediator) : ControllerBase
     [SwaggerResponse(200, "A list of aggregated flights that match the filters.", typeof(IEnumerable<FlightDTO>))]
     [SwaggerResponse(400, "Invalid input data.", typeof(string))]
     [SwaggerResponse(500, "A server error occurred.", typeof(string))]
+    [Authorize]
     public async Task<IActionResult> GetAggregatedFlights(
         [FromQuery] string airline = "",
         [FromQuery] double? minPrice = null,
@@ -74,6 +77,7 @@ public class FlightsController(IMediator mediator) : ControllerBase
     [SwaggerResponse(200, "Booking successful", typeof(BookingResponse))]
     [SwaggerResponse(400, "Invalid booking request", typeof(string))]
     [SwaggerResponse(500, "A server error occurred", typeof(string))]
+    [Authorize]
     public async Task<IActionResult> BookFlight([FromBody] FlightBookingRequest request)
     {
         if (request is not { FlightId: > 0 })
