@@ -31,7 +31,7 @@ public class AuthController : ControllerBase
         return Unauthorized("Invalid username or password.");
     }
 
-    private string GenerateJwtToken(string username)
+    private string GenerateJwtToken(string username) //TODO: Move to a separate service
     {
         var jwtSettings = _config.GetSection("JwtSettings");
         var secretKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["SecretKey"]));
