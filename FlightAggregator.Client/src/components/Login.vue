@@ -53,7 +53,6 @@
     try {
       const response = await api.login(username.value, password.value);
       const savedToken = localStorage.getItem('token');
-      console.log("Saved token:", savedToken);
 
       api.defaults.headers.common['Authorization'] = `Bearer ${response.token}`;
       

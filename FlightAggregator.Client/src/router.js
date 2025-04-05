@@ -1,7 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import Login from './components/Login.vue';
 import Flights from './components/Flights.vue';
-import BookFlight from './components/BookFlight.vue';
 
 const routes = [
     {
@@ -15,11 +14,6 @@ const routes = [
     {
       path: '/flights',
       component: Flights,
-      meta: { requiresAuth: true }
-    },
-    {
-      path: '/book/:id',
-      component: BookFlight,
       meta: { requiresAuth: true }
     }
   ];
@@ -38,5 +32,5 @@ router.beforeEach((to, from, next) => {
       next();
     }
   });
-  
+
 export default router;

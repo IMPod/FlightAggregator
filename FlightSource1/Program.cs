@@ -91,9 +91,9 @@ app.UseHttpsRedirection();
 
 var flights = new List<FlightDTO>
 {
-    new() { Id = 1, Airline = "Airline 1", Price = 100, Stops = 0, DepartureDate = new DateTime(2025, 4, 10), AvailableSeats = 50 },
-    new() { Id = 2, Airline = "Airline 2", Price = 150, Stops = 1, DepartureDate = new DateTime(2025, 4, 12), AvailableSeats = 30 },
-    new() { Id = 3, Airline = "Airline 1", Price = 200, Stops = 2, DepartureDate = new DateTime(2025, 4, 15), AvailableSeats = 20 },
+    new() { Id = 11, Airline = "Airline 1", Price = 100, Stops = 0, DepartureDate = new DateTime(2025, 4, 10), AvailableSeats = 50 },
+    new() { Id = 12, Airline = "Airline 2", Price = 150, Stops = 1, DepartureDate = new DateTime(2025, 4, 12), AvailableSeats = 30 },
+    new() { Id = 13, Airline = "Airline 1", Price = 200, Stops = 2, DepartureDate = new DateTime(2025, 4, 15), AvailableSeats = 20 },
 };
 
 app.MapGet("/api/flights", async (HttpContext httpContext) =>

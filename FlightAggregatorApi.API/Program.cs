@@ -130,7 +130,7 @@ builder.Services.AddSwaggerGen(c =>
 });
 
 var app = builder.Build();
-app.UseCors("AllowVueApp");
+
 
 if (app.Environment.IsDevelopment())
 {
@@ -142,6 +142,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseCors("AllowVueApp");
 
 app.UseAuthentication();  
 app.UseAuthorization();
