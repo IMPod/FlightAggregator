@@ -8,8 +8,8 @@ using Swashbuckle.AspNetCore.Annotations;
 
 namespace FlightAggregatorApi.API.Controllers;
 
-[Route("api/aggregator")]
 [Authorize]
+[Route("api/aggregator")]
 [ApiController]
 public class FlightsController(IMediator mediator) : ControllerBase
 {
