@@ -13,6 +13,17 @@ var builder = WebApplication.CreateBuilder(args);
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
 var secretKey = Encoding.UTF8.GetBytes(jwtSettings["SecretKey"]);
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowVueApp", builder =>
+    {
+        builder.WithOrigins("http://localhost:5174") 
+            .AllowAnyMethod()
+            .AllowAnyHeader()
+            .AllowCredentials();
+    });
+});
+
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
@@ -119,6 +130,7 @@ builder.Services.AddSwaggerGen(c =>
 });
 
 var app = builder.Build();
+app.UseCors("AllowVueApp");
 
 if (app.Environment.IsDevelopment())
 {
