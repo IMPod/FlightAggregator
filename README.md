@@ -118,5 +118,5 @@ Update the src/config.js (or similar configuration file) with the API endpoint w
 ### Key Additions:
 - A section explaining the presence of `FlightSources.sln` and its importance for running examples of external data sources.
 - A note on the connection keys that are stored in `appsettings.json`.
-
+- Credentials for testing "Admin" / "Password"
 Feel free to adjust any section according to your needs! If there’s anything more you’d like to add or modify, just let me know!

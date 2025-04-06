@@ -116,6 +116,8 @@ var redis = ConnectionMultiplexer.Connect("localhost");
 builder.Services.AddSingleton<IConnectionMultiplexer>(redis);
 builder.Services.AddSingleton<IRedisCacheService, RedisCacheService>();
 
+builder.Services.AddTransient<IJwtTokenService, JwtTokenService>();
+
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
