@@ -89,11 +89,11 @@ To run the client application that interacts with the Flight Aggregator API, ens
 
 2. FlightSources Solution: 
 
-* If you have a separate solution (FlightSources.sln) that emulates the data sources for airlines, ensure it is also running.
-* This is crucial because the API will depend on these sources to gather flight data.
+  * If you have a separate solution (FlightSources.sln) that emulates the data sources for airlines, ensure it is also running.
+  * This is crucial because the API will depend on these sources to gather flight data.
 3. Configuring Connection Keys:
 
-* Before running the client application, check the appsettings.json file in your project directories (both for the API and the client) for any necessary connection strings or API keys that may need to be configured.
+  * Before running the client application, check the appsettings.json file in your project directories (both for the API and the client) for any necessary connection strings or API keys that may need to be configured.
 
 Once the API and all data sources are up and running, you can start the client application to interact with the Flight Aggregator API.
 
@@ -106,14 +106,14 @@ The frontend of the Flight Aggregator application is built using Vue.js, a progr
 1. Install Node.js dependencies:
 Ensure you have Node.js installed on your machine. Then run:
 
-* npm install
+  * npm install
 
 2. Configure API Endpoint:
 Update the src/config.js (or similar configuration file) with the API endpoint where your Flight Aggregator API is running (for example, http://localhost:5000).
 
 3. Run the Vue.js application:
 
-npm run serve
+   * npm run server
 
 ### Key Additions:
 - A section explaining the presence of `FlightSources.sln` and its importance for running examples of external data sources.
