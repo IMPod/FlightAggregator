@@ -1,6 +1,5 @@
 using FlightAggregatorApi.BLL;
 using FlightAggregatorApi.BLL.Services;
-using FlightAggregatorApi.BLL.Middlewares;
 using Microsoft.OpenApi.Models;
 using Serilog;
 using StackExchange.Redis;
@@ -12,12 +11,14 @@ using System.Text;
 var builder = WebApplication.CreateBuilder(args);
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
 var secretKey = Encoding.UTF8.GetBytes(jwtSettings["SecretKey"]);
+var vueSettings = builder.Configuration.GetSection("VueSettings");
 
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowVueApp", builder =>
     {
-        builder.WithOrigins("http://localhost:5174") 
+
+        builder.WithOrigins(vueSettings["BaseUrl"]) 
             .AllowAnyMethod()
             .AllowAnyHeader()
             .AllowCredentials();
